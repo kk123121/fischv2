@@ -1,0 +1,88 @@
+print("[Coral Hub]: Loading...")
+
+-- Load Fluent UI library and add-ons
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+-- Initialize UI
+local Window = Fluent:CreateWindow({
+    Name = "Coral Hub",
+    Accent = Color3.fromRGB(0, 200, 255),
+    Size = UDim2.fromOffset(500, 400),
+    Theme = Fluent.Themes.Dark
+})
+
+-- Add tabs
+local MainTab = Window:AddTab("Main")
+local SettingsTab = Window:AddTab("Settings")
+
+-- Auto Catch and Auto Shake variables
+local isAutoCatchEnabled = false
+local isAutoShaking = false
+
+-- Function to detect the big "!"
+local function detectExclamationMark()
+    local screenGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    for _, child in pairs(screenGui:GetDescendants()) do
+        if child:IsA("TextLabel") or child:IsA("ImageLabel") then
+            if string.find(child.Text or "", "!") or string.find(child.Name, "Exclamation") then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Auto Catch function
+local function autoCatch()
+    print("[Coral Hub]: Auto-catching fish!")
+    -- Replace with the actual game logic for instantly catching fish
+    -- Example:
+    -- fireServer(eventToCatchFish)
+end
+
+-- Auto Shake function
+local function autoShake()
+    isAutoShaking = true
+    for i = 1, 20 do
+        if detectExclamationMark() and isAutoCatchEnabled then
+            isAutoShaking = false
+            autoCatch()
+            break
+        end
+        -- Simulate tapping (adjust timing as needed)
+        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+        wait(0.1)
+    end
+    isAutoShaking = false
+end
+
+-- UI Toggles
+MainTab:AddSwitch("Enable Auto Catch", {Default = false}, function(Value)
+    isAutoCatchEnabled = Value
+    print("[Coral Hub]: Auto Catch is now", Value and "Enabled" or "Disabled")
+end)
+
+MainTab:AddButton("Start Auto Shake", function()
+    if not isAutoShaking then
+        autoShake()
+    end
+end)
+
+-- Save Manager
+SaveManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetFolder("CoralHub")
+SaveManager:BuildConfigSection(SettingsTab)
+
+-- Interface Manager
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(SettingsTab)
+
+-- Finalize UI
+Fluent:Notify({
+    Title = "Coral Hub Loaded",
+    Content = "Enjoy your fishing experience with auto features!"
+})
+Fluent:Initialize()
